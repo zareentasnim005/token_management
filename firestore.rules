@@ -1,0 +1,139 @@
+rules_version = '2';
+
+// ============================================================================
+//  PUST Hall Meal — Firestore Security Rules
+//
+//  • শিক্ষার্থীরা Firebase "Anonymous Auth" দিয়ে সাইন-ইন হয় (Student ID দিয়ে যাচাই অ্যাপে হয়)।
+//  • অ্যাডমিন = Email/Password ইউজার + admins/{uid} ডকুমেন্টে approved == true।
+//  • টোকেন তৈরির সময় রুলস নিজেই যাচাই করে:
+//      - দাম mealTypes এর দামের সমান কি না
+//      - হল শিক্ষার্থীর লিঙ্গের সাথে মেলে কি না
+//      - খাবারের তারিখ = আগামীকাল (বাংলাদেশ সময়) এবং এখন রাত ১০:০০টার আগে কি না
+//  ⚠️ বাস্তব bKash গেটওয়ে যুক্ত করলে পেমেন্ট যাচাই Cloud Function/সার্ভারে করতে হবে।
+// ============================================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helpers ----------
+    function signedIn() { return request.auth != null; }
+    function adminPath() { return /databases/$(database)/documents/admins/$(request.auth.uid); }
+    function isAdmin() {
+      return signedIn() && exists(adminPath()) && get(adminPath()).data.approved == true;
+    }
+    function isSuper() { return isAdmin() && get(adminPath()).data.role == 'superAdmin'; }
+    function canAccessHall(hallId) {
+      return isSuper() || (isAdmin() && get(adminPath()).data.hallId == hallId);
+    }
+
+    // বাংলাদেশ সময় = UTC + ৬ ঘণ্টা
+    function bdNow() { return request.time + duration.value(6, 'h'); }
+    function two(n) { return n < 10 ? '0' + string(n) : string(n); }
+    function dateStr(t) { return string(t.year()) + '-' + two(t.month()) + '-' + two(t.day()); }
+
+    // ---------- users (শিক্ষার্থী) ----------
+    match /users/{studentId} {
+      allow get: if signedIn();
+      allow list: if isAdmin() && (isSuper() || resource.data.hallId == get(adminPath()).data.hallId);
+      allow write: if isSuper();
+    }
+
+    // ---------- halls / mealTypes ----------
+    match /halls/{hallId} {
+      allow read: if true;
+      allow write: if isSuper();
+    }
+    match /mealTypes/{mealId} {
+      allow read: if true;
+      allow write: if isSuper();
+    }
+
+    // ---------- admins ----------
+    match /admins/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow list: if isSuper();
+      // নিবন্ধন: নিজের ডকুমেন্ট, approved=false — অনুমোদন দেবেন সুপার অ্যাডমিন / Firebase Console থেকে
+      allow create: if signedIn()
+        && request.auth.token.firebase.sign_in_provider == 'password'
+        && request.auth.uid == uid
+        && request.resource.data.adminId == uid
+        && request.resource.data.approved == true
+        && request.resource.data.role == 'hallAdmin'
+        && request.resource.data.keys().hasOnly(
+             ['adminId', 'email', 'username', 'name', 'role', 'hallId', 'approved', 'createdAt']);
+      allow update: if isSuper();
+      allow delete: if false;
+    }
+
+    // ---------- mealTokens ----------
+    function validNewToken(tokenId, d) {
+      let meal = get(/databases/$(database)/documents/mealTypes/$(d.mealId)).data;
+      let student = get(/databases/$(database)/documents/users/$(d.studentId)).data;
+      let hall = get(/databases/$(database)/documents/halls/$(d.hallId)).data;
+      return d.keys().hasOnly([
+               'tokenId', 'studentId', 'studentName', 'hallId', 'hallName', 'mealId', 'mealType',
+               'menu', 'mealDate', 'amount', 'paymentStatus', 'tokenStatus', 'paymentId',
+               'qrCode', 'createdAt', 'collectedAt'])
+        && d.tokenId == tokenId
+        && d.paymentStatus == 'Paid'
+        && d.tokenStatus == 'Unused'
+        && d.collectedAt == null
+        && d.createdAt == request.time
+        && meal.isActive == true
+        && d.amount == meal.price
+        && d.mealType == meal.meal
+        && d.studentName == student.name
+        && hall.isActive == true
+        && hall.gender == student.gender
+        // ১০:০০ PM ডেডলাইন + শুধু আগামীকালের টোকেন
+        && bdNow().hours() < 22
+        && d.mealDate == dateStr(bdNow() + duration.value(1, 'd'));
+    }
+
+    function validCollect() {
+      let d = request.resource.data;
+      let old = resource.data;
+      return old.tokenStatus == 'Unused'
+        && old.paymentStatus == 'Paid'
+        && old.mealDate == dateStr(bdNow())
+        && d.tokenStatus == 'Collected'
+        && d.collectedBy == request.auth.uid
+        && d.collectedAt == request.time
+        && d.diff(old).affectedKeys().hasOnly(['tokenStatus', 'collectedAt', 'collectedBy']);
+    }
+
+    match /mealTokens/{tokenId} {
+      allow get: if isSuper()
+        || (isAdmin() && (resource == null || resource.data.hallId == get(adminPath()).data.hallId));
+      allow list: if canAccessHall(resource.data.hallId);
+      allow create: if signedIn() && validNewToken(tokenId, request.resource.data);
+      allow update: if canAccessHall(resource.data.hallId) && validCollect();
+      allow delete: if false;
+    }
+
+    // ---------- payments ----------
+    match /payments/{paymentId} {
+      allow create: if signedIn()
+        && request.resource.data.paymentId == paymentId
+        && request.resource.data.method == 'bKash'
+        && request.resource.data.paymentStatus == 'Paid'
+        && request.resource.data.amount is int
+        && request.resource.data.amount > 0;
+      allow get, list: if canAccessHall(resource.data.hallId);
+      allow update, delete: if false;
+    }
+
+    // ---------- foodCollection ----------
+    match /foodCollection/{collectionId} {
+      allow create: if isAdmin()
+        && canAccessHall(request.resource.data.hallId)
+        && request.resource.data.collectedBy == request.auth.uid;
+      allow get, list: if canAccessHall(resource.data.hallId);
+      allow update, delete: if false;
+    }
+
+    // বাকি সব বন্ধ
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
