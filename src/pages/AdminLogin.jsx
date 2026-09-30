@@ -9,7 +9,7 @@ import { isFirebaseConfigured } from '../firebase.js';
 
 const ERRORS = {
   'auth/invalid-credential': 'ইউজার নাম বা পাসওয়ার্ড ভুল।',
-  'auth/wrong-password': 'ইউজার নাম বা পাসওয়ার্ড ভুল।',
+  'auth/wrong-password': 'ইউজার নাম বা পাসওয়ার্ড ভুল।', 
   'auth/user-not-found': 'ইউজার নাম বা পাসওয়ার্ড ভুল।',
   'auth/invalid-email': 'ইউজার নাম/ইমেইলের ফরম্যাট সঠিক নয়।',
   'auth/too-many-requests': 'অনেকবার ভুল চেষ্টা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।',
