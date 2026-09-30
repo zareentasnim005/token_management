@@ -81,10 +81,7 @@ export default function DailyExpense() {
         <div className="table-card"><Empty icon="💰" title="এই সময়ে কোনো হিসাব নেই">তারিখের সীমা বদলে দেখুন।</Empty></div>
       ) : (
         <>
-          <section className="card card-pad">
-            <h2 className="section-title">দিনভিত্তিক আয়</h2>
-            <BarChart data={chart} color="var(--gold)" />
-          </section>
+
 
           <div className="table-card spaced">
             <div className="table-scroll">

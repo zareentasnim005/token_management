@@ -10,11 +10,11 @@ const TABS = [
   { to: '/admin/panel', label: 'ড্যাশবোর্ড', icon: '📊', end: true },
   { to: '/admin/panel/scanner', label: 'QR স্ক্যানার', icon: '📷' },
   { to: '/admin/panel/tokens', label: 'টোকেন লগ', icon: '📋' },
-  { to: '/admin/panel/verify', label: 'শিক্ষার্থী যাচাই', icon: '🧑‍🎓' },
+
   { to: '/admin/panel/collection', label: 'খাবার সংগ্রহ', icon: '🍽️' },
   { to: '/admin/panel/daily', label: 'দৈনিক খরচ', icon: '💰' },
   { to: '/admin/panel/monthly', label: 'মাসিক খরচ', icon: '📅' },
-  { to: '/admin/panel/history', label: 'ইতিহাস', icon: '🕘' },
+
 ];
 
 function Shell() {

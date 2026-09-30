@@ -54,32 +54,7 @@ export default function Dashboard() {
         <StatCard icon="📆" label="আগামীকালের টোকেন" value={bn(stats.tomorrow)} tone="sky" />
       </div>
 
-      <div className="grid-2">
-        <section className="card card-pad">
-          <h2 className="section-title">গত ৭ দিনের আয়</h2>
-          <BarChart data={stats.chart} />
-        </section>
 
-        <section className="card card-pad">
-          <h2 className="section-title">সাম্প্রতিক খাবার সংগ্রহ</h2>
-          {collections.length === 0 ? (
-            <Empty icon="🍽️" title="এখনো কোনো সংগ্রহ নেই">QR স্ক্যান করে খাবার দেওয়া শুরু করুন।</Empty>
-          ) : (
-            <ul className="recent-list">
-              {collections.slice(0, 6).map((c) => (
-                <li key={c.collectionId}>
-                  <span className="recent-meal">{MEAL_META[c.mealType]?.icon}</span>
-                  <span className="recent-main">
-                    <b>{c.studentName}</b>
-                    <small className="mono">{c.tokenId}</small>
-                  </span>
-                  <span className="muted small">{formatDateTime(c.collectedAt)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      </div>
 
       <h2 className="section-title spaced">আজকের মিলভিত্তিক হিসাব</h2>
       <SummaryBlock rows={stats.todayT} />

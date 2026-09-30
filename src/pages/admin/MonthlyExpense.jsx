@@ -72,10 +72,7 @@ export default function MonthlyExpense() {
         <div className="table-card"><Empty icon="📅" title="এই বছরে কোনো হিসাব নেই">অন্য বছর বেছে দেখুন।</Empty></div>
       ) : (
         <>
-          <section className="card card-pad">
-            <h2 className="section-title">মাসভিত্তিক আয়</h2>
-            <BarChart data={chart} color="var(--gold)" />
-          </section>
+
 
           <div className="table-card spaced">
             <div className="table-scroll">

@@ -18,11 +18,11 @@ import AdminLayout from './pages/AdminLayout.jsx';
 import Dashboard from './pages/admin/Dashboard.jsx';
 import Scanner from './pages/admin/Scanner.jsx';
 import TokenLog from './pages/admin/TokenLog.jsx';
-import Verify from './pages/admin/Verify.jsx';
+
 import Collection from './pages/admin/Collection.jsx';
 import DailyExpense from './pages/admin/DailyExpense.jsx';
 import MonthlyExpense from './pages/admin/MonthlyExpense.jsx';
-import History from './pages/admin/History.jsx';
+
 
 function PublicLayout() {
   return (
@@ -72,11 +72,11 @@ export default function App() {
                   <Route index element={<Dashboard />} />
                   <Route path="scanner" element={<Scanner />} />
                   <Route path="tokens" element={<TokenLog />} />
-                  <Route path="verify" element={<Verify />} />
+
                   <Route path="collection" element={<Collection />} />
                   <Route path="daily" element={<DailyExpense />} />
                   <Route path="monthly" element={<MonthlyExpense />} />
-                  <Route path="history" element={<History />} />
+
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" replace />} />
