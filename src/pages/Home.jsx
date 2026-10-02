@@ -1,5 +1,4 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { GENDER_LABEL, HALL_ICON } from '../config.js';
 import { HALLS } from '../data/seedData.js';
 import { isFirebaseConfigured } from '../firebase.js';
 import { Alert } from '../components/ui.jsx';
@@ -42,9 +41,7 @@ export default function Home() {
         <section className="hall-mini-grid" aria-label="হলসমূহ">
           {HALLS.map((h) => (
             <div key={h.hallId} className="hall-mini">
-              <span className="hall-mini-icon">{HALL_ICON[h.gender]}</span>
               <b>{h.name}</b>
-              <small>{GENDER_LABEL[h.gender]}</small>
             </div>
           ))}
         </section>

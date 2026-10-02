@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-const KEY = 'pust-student-flow-v1';
+export const FLOW_KEY = 'pust-student-flow-v1';
+const KEY = FLOW_KEY;
 
 const emptySelection = () => ({
   breakfast: { checked: false, mealId: null },

@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import Stepper from '../components/Stepper.jsx';
-import { useFlow } from '../context/FlowContext.jsx';
+import { useFlow, FLOW_KEY } from '../context/FlowContext.jsx';
 import { MEAL_KEYS } from '../config.js';
 
 const STEP_BY_PATH = {
@@ -25,8 +25,25 @@ export default function StudentLayout() {
   if (step === 4 && flow.tokens.length) return <Navigate to="/student/token" replace />;
   if (step === 5 && !flow.tokens.length) return <Navigate to="/student" replace />;
 
+  const doLogout = () => {
+    sessionStorage.removeItem(FLOW_KEY);
+    window.location.href = '/';
+  };
+
   return (
     <>
+      {flow.student && (
+        <div className="admin-bar">
+          <div className="container admin-bar-inner">
+            <div className="admin-welcome">
+              🧑‍🎓 {flow.student.name} <span className="mono">({flow.student.studentId})</span>
+            </div>
+            <div className="admin-bar-actions">
+              <button type="button" className="btn btn-outline btn-sm" onClick={doLogout}>লগআউট</button>
+            </div>
+          </div>
+        </div>
+      )}
       <Stepper current={step} />
       <main className="container narrow page-pad">
         <Outlet />
