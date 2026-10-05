@@ -104,7 +104,7 @@ service cloud.firestore {
     match /mealTokens/{tokenId} {
       allow get: if isSuper()
         || (isAdmin() && (resource == null || resource.data.hallId == get(adminPath()).data.hallId));
-      allow list: if canAccessHall(resource.data.hallId);
+      allow list: if canAccessHall(resource.data.hallId) || signedIn();
       allow create: if signedIn() && validNewToken(tokenId, request.resource.data);
       allow update: if canAccessHall(resource.data.hallId) && validCollect();
       allow delete: if false;
