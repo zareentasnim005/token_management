@@ -1,4 +1,4 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import Stepper from '../components/Stepper.jsx';
 import { useFlow, FLOW_KEY } from '../context/FlowContext.jsx';
 import { MEAL_KEYS } from '../config.js';
@@ -38,7 +38,8 @@ export default function StudentLayout() {
             <div className="admin-welcome">
               🧑‍🎓 {flow.student.name} <span className="mono">({flow.student.studentId})</span>
             </div>
-            <div className="admin-bar-actions">
+                        <div className="admin-bar-actions">
+              <Link to="/student/my-tokens" className="btn btn-outline btn-sm">🎫 আমার সব টোকেন</Link>
               <button type="button" className="btn btn-outline btn-sm" onClick={doLogout}>লগআউট</button>
             </div>
           </div>

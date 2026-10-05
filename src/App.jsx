@@ -12,6 +12,7 @@ import HallSelect from './pages/HallSelect.jsx';
 import MealSelect from './pages/MealSelect.jsx';
 import Payment from './pages/Payment.jsx';
 import QrToken from './pages/QrToken.jsx';
+import TokenList from './pages/TokenList.jsx';
 import AdminHallSelect from './pages/AdminHallSelect.jsx';
 import AdminLogin from './pages/AdminLogin.jsx';
 import AdminLayout from './pages/AdminLayout.jsx';
@@ -58,7 +59,7 @@ export default function App() {
                   <Route path="payment" element={<Payment />} />
                   <Route path="token" element={<QrToken />} />
                 </Route>
-
+                <Route path="/student/my-tokens" element={<TokenList />} />
                 <Route path="/admin" element={<AdminHallSelect />} />
                 <Route path="/admin/login/:hallId" element={<AdminLogin />} />
                 <Route
