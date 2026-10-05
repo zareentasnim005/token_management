@@ -38,8 +38,8 @@ export default function StudentLayout() {
             <div className="admin-welcome">
               🧑‍🎓 {flow.student.name} <span className="mono">({flow.student.studentId})</span>
             </div>
-                        <div className="admin-bar-actions">
-              <Link to="/student/my-tokens" className="btn btn-outline btn-sm">🎫 আমার সব টোকেন</Link>
+            <div className="admin-bar-actions">
+              <Link to="/student/my-tokens" className="btn btn-outline btn-sm">🎫 টোকেন লিস্ট</Link>
               <button type="button" className="btn btn-outline btn-sm" onClick={doLogout}>লগআউট</button>
             </div>
           </div>
