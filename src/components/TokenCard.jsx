@@ -1,13 +1,13 @@
 import { useRef } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
-import { MEAL_META } from '../config.js';
+import { MEAL_META, PAYMENT_STATUS, TOKEN_STATUS } from '../config.js';
 import { bn, taka } from '../utils/format.js';
+import { effectiveStatus } from '../utils/time.js';
 import { Badge, DetailList } from './ui.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 
 const NAVY = '#1e3a6e';
 
-/** টোকেন + QR কোডকে একটি সুন্দর PNG ছবি হিসেবে ডাউনলোড করায় */
 async function downloadTokenImage(token, qrCanvas) {
   try {
     await document.fonts?.ready;
@@ -31,7 +31,6 @@ async function downloadTokenImage(token, qrCanvas) {
   g.fill();
   g.stroke();
 
-  // হেডার
   const grad = g.createLinearGradient(0, 20, W, 140);
   grad.addColorStop(0, '#1e3a6e');
   grad.addColorStop(1, '#2b559c');
@@ -47,7 +46,6 @@ async function downloadTokenImage(token, qrCanvas) {
   g.font = '700 40px Inter, sans-serif';
   g.fillText(token.tokenId, W / 2, 122);
 
-  // QR
   g.strokeStyle = NAVY;
   g.lineWidth = 6;
   g.beginPath();
@@ -55,7 +53,6 @@ async function downloadTokenImage(token, qrCanvas) {
   g.stroke();
   g.drawImage(qrCanvas, W / 2 - 145, 200, 290, 290);
 
-  // তথ্য
   const rows = [
     ['শিক্ষার্থী', token.studentName],
     ['আইডি', token.studentId],
@@ -88,6 +85,9 @@ export default function TokenCard({ token }) {
   const wrapRef = useRef(null);
   const toast = useToast();
   const meal = MEAL_META[token.mealType];
+  const status = effectiveStatus(token);
+  const payInfo = PAYMENT_STATUS[token.paymentStatus] || { label: 'পরিশোধিত', tone: 'green' };
+  const statusInfo = TOKEN_STATUS[status] || { label: 'বৈধ', tone: 'blue' };
 
   const onDownload = async () => {
     const canvas = wrapRef.current?.querySelector('canvas');
@@ -113,8 +113,8 @@ export default function TokenCard({ token }) {
         </div>
 
         <div className="token-badges">
-          <Badge tone="green">✓ পরিশোধিত</Badge>
-          <Badge tone="blue">● বৈধ</Badge>
+          <Badge tone={payInfo.tone}>✓ {payInfo.label}</Badge>
+          <Badge tone={statusInfo.tone}>● {statusInfo.label}</Badge>
         </div>
 
         <DetailList
