@@ -1,7 +1,8 @@
-import { doc, serverTimestamp, writeBatch } from 'firebase/firestore';
+import { collection, doc, getDocs, query, serverTimestamp, where, writeBatch } from 'firebase/firestore';
 import { db } from '../firebase.js';
 import { buildQrPayload, generatePaymentId, generateTokenId } from '../utils/token.js';
 import { ensureSignedIn } from './studentService.js';
+import { tsToMillis } from '../utils/time.js';
 
 /**
  * পেমেন্ট সফল হওয়ার পর প্রতিটি নির্বাচিত মিলের জন্য একটি করে টোকেন + পেমেন্ট রেকর্ড তৈরি করে।
@@ -62,4 +63,13 @@ export async function createPaidTokens({ student, hall, options, mealDate, maske
 
   await batch.commit();
   return tokens;
+}
+
+/** একজন শিক্ষার্থীর কেনা সব মিল টোকেন (নতুন তারিখেরটা আগে) */
+export async function getStudentTokens(studentId) {
+  await ensureSignedIn();
+  const snap = await getDocs(query(collection(db, 'mealTokens'), where('studentId', '==', studentId)));
+  return snap.docs
+    .map((d) => d.data())
+    .sort((a, b) => (b.mealDate || '').localeCompare(a.mealDate || '') || tsToMillis(b.createdAt) - tsToMillis(a.createdAt));
 }
