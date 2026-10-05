@@ -38,7 +38,7 @@ export default function TokenList() {
 
     return (
         <main className="container narrow page-pad">
-            <h1 className="section-title">টোকেন লিস্ট</h1>
+            <h1 className="section-title">টোকেন  লিস্ট</h1>
             <p className="card-sub">
                 {flow.student.name} <span className="mono">({flow.student.studentId})</span> — এই আইডিতে কেনা সব মিল টোকেন এখানে দেখা যাবে।
             </p>
